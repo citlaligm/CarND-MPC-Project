@@ -104,7 +104,7 @@ int main() {
             ptsy[i] = -dist_x *sin(psi)+dist_y*cos(psi);
           }
 
-
+          //Transform waypoint from map's space to car's space
           Eigen::Map<Eigen::VectorXd> ptsx_rotated(ptsx.data(), ptsx.size());
           Eigen::Map<Eigen::VectorXd> ptsy_rotated(ptsy.data(), ptsy.size());
 
@@ -131,7 +131,7 @@ int main() {
           auto vars = mpc.Solve(state, coeffs);
 
 
-          steer_value = - vars[0];
+          steer_value = - vars[0]/deg2rad(25);
           throttle_value = vars[1];
 
 
