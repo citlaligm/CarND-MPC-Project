@@ -86,7 +86,7 @@ So finally we can include these error into the the car's state as follow:
 The enviroment around the car is likely to change within seconds, predict more than that probably will fail to correspond with the actual enviroment. For that reason I chose Timestep Length (T) equal to 1s which was N = 10 and dt= 0.1. This means that the model will perform 10 prediction and actuations evey 100ms.This values were found in a trial and error method.
 
 ## Polynomial Fitting and MPC Preprocessing
-In order to use the MPC with the data from the simulator, I had to transform the given waypoint to the car's perspective using the equations [here](https://en.wikipedia.org/wiki/Rotation_matrix) then fitted a 3d order polynomial and finally I calculated the CTE and orientation error at each timestep the car is at 0,0 in the car's system.
+In order to use the MPC with the data from the simulator, I had to transform the given waypoint to the car's perspective using the equations [here](https://en.wikipedia.org/wiki/Rotation_matrix) then fitted a 3d order polynomial and finally I calculated the CTE and orientation error. Since the calculations are being performed in the car's space, the car's position at each timestep is 0,0. 
 
 
 ## Model Predictive Control with Latency
