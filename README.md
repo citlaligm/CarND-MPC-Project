@@ -90,13 +90,12 @@ In order to use the MPC with the data from the simulator, I had to transform the
 
 
 ## Model Predictive Control with Latency
-In this project the latency is 100ms, this means that there is a delay between the time the command to activate the actuator is sent and the time the actuator is actually executed. For this reason I chose the prediction horizont (T) to be 100ms. So that the controller predicts the state of the car 100ms in advance.
+In this project the latency is 100ms, this means that there is a delay between the time the command to activate the actuator is sent and the time the actuator is actually executed. For this reason I chose the prediction horizont (T) to be 100ms. Aditionally I calculated the state of car 100ms in the future, before predicting the next state.
 
 
 ## Result
 You can watch my results here:
-https://youtu.be/VRQuvnYg-TY
-
+https://youtu.be/IhJoblYIQXU
 
 
 
