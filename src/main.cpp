@@ -140,8 +140,8 @@ int main() {
           const double Lf = 2.67;
 
           //x_t+1 = xt + vt*cos(psi)*dt
-          //convert from mph to kph
-          double v_kph = v* 1.609 ;
+          //convert from mph to meter per hour
+          double v_kph = v* 1609 ;
           double x_dt =  v_kph/3600 * dt;
           // y_t+1 = yt + sin(psi)*dt
           double y_dt = 0;
