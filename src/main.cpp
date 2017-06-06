@@ -65,6 +65,29 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   return result;
 }
 
+
+void Transform( vector<double> &ptsx,  vector<double> &ptsy, double px, double py, double psi){
+	/*
+    Transform waypoint to car's coordinate system 
+    https://en.wikipedia.org/wiki/Rotation_matrix
+    */
+
+    for (int i = 0; i < ptsx.size(); i++ )
+    {
+    	double dist_x = ptsx[i]-px;
+        double dist_y = ptsy[i]-py;
+        ptsx[i] = dist_x *cos(psi)+dist_y*sin(psi);
+        ptsy[i] = -dist_x *sin(psi)+dist_y*cos(psi);
+    }
+
+}
+		  
+
+
+
+
+
+
 int main() {
   uWS::Hub h;
 
@@ -92,19 +115,8 @@ int main() {
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
 
-          /*
-          Transform waypoint to car's coordinate system 
-          https://en.wikipedia.org/wiki/Rotation_matrix
-          */
-          for (int i = 0; i < ptsx.size(); i++ )
-          {
-            double dist_x = ptsx[i]-px;
-            double dist_y = ptsy[i]-py;
-            ptsx[i] = dist_x *cos(psi)+dist_y*sin(psi);
-            ptsy[i] = -dist_x *sin(psi)+dist_y*cos(psi);
-          }
-
           //Transform waypoint from map's space to car's space
+          Transform (ptsx, ptsy, px, py, psi);
           Eigen::Map<Eigen::VectorXd> ptsx_rotated(ptsx.data(), ptsx.size());
           Eigen::Map<Eigen::VectorXd> ptsy_rotated(ptsy.data(), ptsy.size());
 
@@ -118,14 +130,39 @@ int main() {
           //epsi = atan(f'(x)) since x and y are 0:
           double epsi = -atan(coeffs[1]);
 
+          double steer_value = j[1]["steering_angle"];
+          double throttle_value = j[1]["throttle"];
 
-          double steer_value;
-          double throttle_value;
+
+		  //calculate state considering latency using the kinematic model 
+          
+          double dt = 0.1;
+          const double Lf = 2.67;
+
+          //x_t+1 = xt + vt*cos(psi)*dt
+          //convert from mph to kph
+          double v_kph = v* 1.609 ;
+          double x_dt =  v_kph/3600 * dt;
+          // y_t+1 = yt + sin(psi)*dt
+          double y_dt = 0;
+          //psi_t+1 = psi + v/Lf *steer_value * dt
+          double psi_dt = -v * steer_value / Lf * dt;
+          //v_t+1 = vt + acceleration*dt
+          double v_dt = v + throttle_value * dt;
+
+
+          //Errors
+          // ctet+1 = f(xt)-y +(vt*sin(epsi)*dt)
+          double cte_dt = cte + v * sin(epsi) * dt;
+
+          // epsi_t+1 = epsi - epsi_des + (vt/Lf *steering*dt)
+          double epsi_dt = epsi- psi_dt;
+
 
 
           Eigen::VectorXd state(6);
 
-          state << 0.0, 0.0, 0.0, v, cte, epsi;
+          state << x_dt, y_dt, psi_dt, v_dt, cte_dt, epsi_dt;
 
           //Calculate steering value and throttle with MPC
           auto vars = mpc.Solve(state, coeffs);
@@ -140,6 +177,9 @@ int main() {
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
+
+
+
 
           //Display the MPC predicted trajectory 
           vector<double> mpc_x_vals;
