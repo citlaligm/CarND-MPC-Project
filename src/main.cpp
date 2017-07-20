@@ -83,11 +83,6 @@ void Transform( vector<double> &ptsx,  vector<double> &ptsy, double px, double p
 }
 		  
 
-
-
-
-
-
 int main() {
   uWS::Hub h;
 
@@ -134,28 +129,21 @@ int main() {
           double throttle_value = j[1]["throttle"];
 
 
-		  //calculate state considering latency using the kinematic model 
+          //calculate state considering latency using the kinematic model 
           
           double dt = 0.1;
           const double Lf = 2.67;
 
-          //x_t+1 = xt + vt*cos(psi)*dt
           //convert from mph to meter per hour
           double v_kph = v* 1609 ;
           double x_dt =  v_kph/3600 * dt;
-          // y_t+1 = yt + sin(psi)*dt
           double y_dt = 0;
-          //psi_t+1 = psi + v/Lf *steer_value * dt
           double psi_dt = -v * steer_value / Lf * dt;
-          //v_t+1 = vt + acceleration*dt
           double v_dt = v + throttle_value * dt;
 
 
           //Errors
-          // ctet+1 = f(xt)-y +(vt*sin(epsi)*dt)
           double cte_dt = cte + v * sin(epsi) * dt;
-
-          // epsi_t+1 = epsi - epsi_des + (vt/Lf *steering*dt)
           double epsi_dt = epsi- psi_dt;
 
 
